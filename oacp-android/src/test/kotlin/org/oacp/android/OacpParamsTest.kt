@@ -206,4 +206,29 @@ class OacpParamsTest {
         val params = OacpParams(intent)
         assertEquals("exact", params.getString("query"))
     }
+
+    @Test
+    fun `getInt resolves bare EXTRA_ prefix without package`() {
+        // This is how extrasMapping keys arrive: "EXTRA_AMOUNT" (no package prefix)
+        val intent = Intent().apply { putExtra("EXTRA_AMOUNT", 7) }
+        val params = OacpParams(intent)
+        assertEquals(7, params.getInt("amount"))
+    }
+
+    @Test
+    fun `getString resolves bare EXTRA_ prefix case insensitive`() {
+        val intent = Intent().apply { putExtra("extra_query", "hello") }
+        val params = OacpParams(intent)
+        assertEquals("hello", params.getString("query"))
+    }
+
+    @Test
+    fun `bare EXTRA_ match has lower priority than exact match`() {
+        val intent = Intent().apply {
+            putExtra("amount", 10)
+            putExtra("EXTRA_AMOUNT", 20)
+        }
+        val params = OacpParams(intent)
+        assertEquals(10, params.getInt("amount"))
+    }
 }

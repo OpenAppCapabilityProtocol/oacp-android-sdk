@@ -137,8 +137,13 @@ public class OacpParams(private val intent: Intent) {
         // Exact match first
         if (keys.contains(name)) return name
 
-        // Suffix match: try suffixes in priority order (most specific first)
+        // Direct EXTRA_ match (bare key without package prefix, e.g. "EXTRA_AMOUNT")
         val upperName = name.uppercase()
+        val extraKey = "EXTRA_$upperName"
+        val directMatch = keys.firstOrNull { it.equals(extraKey, ignoreCase = true) }
+        if (directMatch != null) return directMatch
+
+        // Suffix match: try suffixes in priority order (most specific first)
         val suffixes = listOf(
             ".EXTRA_$upperName",
             ".extra.$upperName",
